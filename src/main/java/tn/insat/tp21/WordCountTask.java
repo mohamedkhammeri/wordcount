@@ -16,14 +16,13 @@ public class WordCountTask {
         new WordCountTask().run(args[0], args[1]);
     }
     public void run(String inputFilePath, String outputDir) {
-        String master = "local[*]";
+
         SparkConf conf = new SparkConf()
-                .setAppName(WordCountTask.class.getName())
-                .setMaster(master);
+                .setAppName(WordCountTask.class.getName());
         JavaSparkContext sc = new JavaSparkContext(conf);
         JavaRDD<String> textFile = sc.textFile(inputFilePath);
         JavaPairRDD<String, Integer> counts = textFile
-                .flatMap(s -> Arrays.asList(s.split(" ")).iterator())
+                .flatMap(s -> Arrays.asList(s.split("\t")).iterator())
                 .mapToPair(word -> new Tuple2<>(word, 1))
                 .reduceByKey((a, b) -> a + b);
         counts.saveAsTextFile(outputDir);
